@@ -1,6 +1,8 @@
 import numpy as np
 import pygame
 
+from colors import RED, GREY
+
 
 class Entity(pygame.sprite.Sprite):
     """
@@ -41,4 +43,7 @@ class Player(Entity):
         self.pos = (x, y)
 
     def update(self):
-        pass
+        self.pos = self.pos + self.velocity
+
+    def update_velocity(self, dX: int, dY: int) -> None:
+        self.velocity = self.velocity + np.array((dX, dY))

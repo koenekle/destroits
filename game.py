@@ -5,6 +5,7 @@ import sys
 import pygame
 from pygame.locals import QUIT
 
+from colors import BLACK
 from entity import Player
 
 
@@ -13,10 +14,11 @@ class Game:
         pygame.init()
         self.screen = self.__init_screen()
         self.player = Player(250, 250)
-        self.group = pygame.sprite.RenderPlain(self.player)
+        self.players = pygame.sprite.RenderPlain(self.player)
+        self.destroits = pygame.sprite.Group()
         self.clock = pygame.time.Clock()
 
-    def __init_screen(self):
+    def __init_screen(self) -> pygame.Surface:
         screen = pygame.display.set_mode((500, 500))
         pygame.display.set_caption("DESTROITS")
 
@@ -36,14 +38,29 @@ class Game:
         # Event loop
         while True:
             self.clock.tick(60)
-            for event in pygame.event.get():
-                if event.type == QUIT:
-                    sys.exit(0)
-            self.draw()
+            self.process_input()
+            self.update()
+            self.render()
 
-    def draw(self):
-        print("Drawing")
+    def process_input(self) -> None:
+        for event in pygame.event.get():
+            print(event)
+            if event.type == QUIT:
+                sys.exit(0)
+            if event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_UP:
+                self.player.update_velocity(0, -1)
+            if event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_DOWN:
+                self.player.update_velocity(0, 1)
+            if event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_LEFT:
+                self.player.update_velocity(-1, 0)
+            if event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_RIGHT:
+                self.player.update_velocity(1, 0)
 
+    def render(self) -> None:
         self.screen.blit(self.background, (0, 0))
-        self.group.draw(self.screen)
+        self.players.draw(self.screen)
         pygame.display.flip()
+
+    def update(self) -> None:
+        self.players.update()
+        self.destroits.update()
