@@ -1,5 +1,6 @@
 import numpy as np
 import pygame
+from math import fabs, copysign
 
 from colors import RED, GREY
 
@@ -16,7 +17,7 @@ class Entity(pygame.sprite.Sprite):
         self.image = pygame.Surface([10, 10])
         self.image.fill(GREY)
         self.rect = self.image.get_rect()
-        self.velocity = np.array((0, 0))
+        self.acceleration = np.array((0, 0))
 
     @property
     def pos(self) -> np.array:
@@ -32,8 +33,7 @@ class Entity(pygame.sprite.Sprite):
 
 
 class Player(Entity):
-    VELO_MAX = (10, 10)
-    VELO_MIN = (0, 0)
+    MAX_SPEED = (5, 5)
 
     def __init__(self, x: int, y: int) -> None:
         super().__init__(x, y)
@@ -41,9 +41,17 @@ class Player(Entity):
         self.image.fill(RED)
         self.rect = self.image.get_rect()
         self.pos = (x, y)
+        self.acceleration = np.array((0, 0))
+        self.speed = np.array((0, 0))
 
     def update(self):
-        self.pos = self.pos + self.velocity
+        self.speed += self.acceleration
+        # Max acceleration check
+        if fabs(self.speed[0]) > self.MAX_SPEED[0]:
+            self.speed = np.array((copysign(self.MAX_SPEED[0], self.speed[0]), self.speed[1]))
+        if fabs(self.speed[1]) > self.MAX_SPEED[1]:
+            self.speed = np.array((self.speed[0], copysign(self.MAX_SPEED[1], self.speed[1])))
+        self.pos = self.pos + self.speed
 
-    def update_velocity(self, dX: int, dY: int) -> None:
-        self.velocity = self.velocity + np.array((dX, dY))
+    def set_acceleration(self, dX: int, dY: int) -> None:
+        self.acceleration = self.acceleration + np.array((dX, dY))

@@ -13,11 +13,10 @@ class Game:
     def __init__(self) -> None:
         pygame.init()
         self.screen = self.__init_screen()
-        pygame.event.set_allowed(None)
-        pygame.event.set_allowed((KEYDOWN, KEYUP, QUIT))
         self.player = Player(250, 250)
         self.players = pygame.sprite.RenderPlain(self.player)
         self.destroits = pygame.sprite.Group()
+        self.bullets = pygame.sprite.Group()
         self.clock = pygame.time.Clock()
 
     def __init_screen(self) -> pygame.Surface:
@@ -51,28 +50,31 @@ class Game:
                 sys.exit(0)
             if event.type == KEYDOWN:
                 if event.key == K_UP:
-                    self.player.update_velocity(0, -1)
+                    self.player.set_acceleration(0, -1)
                 if event.key == K_DOWN:
-                    self.player.update_velocity(0, 1)
+                    self.player.set_acceleration(0, 1)
                 if event.key == K_LEFT:
-                    self.player.update_velocity(-1, 0)
+                    self.player.set_acceleration(-1, 0)
                 if event.key == K_RIGHT:
-                    self.player.update_velocity(1, 0)
+                    self.player.set_acceleration(1, 0)
             if event.type == KEYUP:
                 if event.key == K_UP:
-                    self.player.update_velocity(0, 1)
+                    self.player.set_acceleration(0, 1)
                 if event.key == K_DOWN:
-                    self.player.update_velocity(0, -1)
+                    self.player.set_acceleration(0, -1)
                 if event.key == K_LEFT:
-                    self.player.update_velocity(1, 0)
+                    self.player.set_acceleration(1, 0)
                 if event.key == K_RIGHT:
-                    self.player.update_velocity(-1, 0)
+                    self.player.set_acceleration(-1, 0)
 
     def render(self) -> None:
         self.screen.blit(self.background, (0, 0))
         self.players.draw(self.screen)
+        self.destroits.draw(self.screen)
+        self.bullets.draw(self.screen)
         pygame.display.flip()
 
     def update(self) -> None:
         self.players.update()
         self.destroits.update()
+        self.bullets.update()
