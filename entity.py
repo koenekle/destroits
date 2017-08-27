@@ -41,8 +41,8 @@ class Player(Entity):
         self.image.fill(RED)
         self.rect = self.image.get_rect()
         self.pos = (x, y)
-        self.acceleration = np.array((0, 0))
-        self.speed = np.array((0, 0))
+        self.acceleration = np.array((0.0, 0.0))
+        self.speed = np.array((0.0, 0.0))
 
     def update(self):
         self.speed += self.acceleration
@@ -53,5 +53,5 @@ class Player(Entity):
             self.speed = np.array((self.speed[0], copysign(self.MAX_SPEED[1], self.speed[1])))
         self.pos = self.pos + self.speed
 
-    def set_acceleration(self, dX: int, dY: int) -> None:
+    def set_acceleration(self, dX: float, dY: float) -> None:
         self.acceleration = self.acceleration + np.array((dX, dY))

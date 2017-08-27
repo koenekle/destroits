@@ -20,7 +20,7 @@ class Game:
         self.clock = pygame.time.Clock()
 
     def __init_screen(self) -> pygame.Surface:
-        screen = pygame.display.set_mode((500, 500))
+        screen = pygame.display.set_mode((1000, 1000))
         pygame.display.set_caption("DESTROITS")
 
         # Fill background
@@ -50,22 +50,22 @@ class Game:
                 sys.exit(0)
             if event.type == KEYDOWN:
                 if event.key == K_UP:
-                    self.player.set_acceleration(0, -1)
+                    self.player.set_acceleration(0, -0.5)
                 if event.key == K_DOWN:
-                    self.player.set_acceleration(0, 1)
+                    self.player.set_acceleration(0, 0.5)
                 if event.key == K_LEFT:
-                    self.player.set_acceleration(-1, 0)
+                    self.player.set_acceleration(-0.5, 0)
                 if event.key == K_RIGHT:
-                    self.player.set_acceleration(1, 0)
+                    self.player.set_acceleration(0.5, 0)
             if event.type == KEYUP:
                 if event.key == K_UP:
-                    self.player.set_acceleration(0, 1)
+                    self.player.set_acceleration(0, 0.5)
                 if event.key == K_DOWN:
-                    self.player.set_acceleration(0, -1)
+                    self.player.set_acceleration(0, -0.5)
                 if event.key == K_LEFT:
-                    self.player.set_acceleration(1, 0)
+                    self.player.set_acceleration(0.5, 0)
                 if event.key == K_RIGHT:
-                    self.player.set_acceleration(-1, 0)
+                    self.player.set_acceleration(-0.5, 0)
 
     def render(self) -> None:
         self.screen.blit(self.background, (0, 0))
