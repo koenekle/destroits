@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: <utf-8> -*-
 
-from Game import Game
+from game import Game
 
 
 def launch() -> None:
