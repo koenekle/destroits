@@ -2,11 +2,9 @@
 # -*- coding: <utf-8> -*-
 import sys
 
-import pygame
 from pygame.locals import QUIT, KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, KEYUP
 
-from colors import BLACK
-from entity import Player
+from entities import *
 
 
 class Game:
@@ -20,7 +18,7 @@ class Game:
         self.clock = pygame.time.Clock()
 
     def __init_screen(self) -> pygame.Surface:
-        screen = pygame.display.set_mode((1000, 1000))
+        screen = pygame.display.set_mode(GAMESIZE)
         pygame.display.set_caption("DESTROITS")
 
         # Fill background
@@ -48,23 +46,23 @@ class Game:
         for event in pygame.event.get():
             if event.type == QUIT:
                 sys.exit(0)
-            if event.type == KEYDOWN:
+            elif event.type == KEYDOWN:
                 if event.key == K_UP:
                     self.player.set_acceleration(0, -0.5)
-                if event.key == K_DOWN:
+                elif event.key == K_DOWN:
                     self.player.set_acceleration(0, 0.5)
-                if event.key == K_LEFT:
+                elif event.key == K_LEFT:
                     self.player.set_acceleration(-0.5, 0)
-                if event.key == K_RIGHT:
+                elif event.key == K_RIGHT:
                     self.player.set_acceleration(0.5, 0)
-            if event.type == KEYUP:
+            elif event.type == KEYUP:
                 if event.key == K_UP:
                     self.player.set_acceleration(0, 0.5)
-                if event.key == K_DOWN:
+                elif event.key == K_DOWN:
                     self.player.set_acceleration(0, -0.5)
-                if event.key == K_LEFT:
+                elif event.key == K_LEFT:
                     self.player.set_acceleration(0.5, 0)
-                if event.key == K_RIGHT:
+                elif event.key == K_RIGHT:
                     self.player.set_acceleration(-0.5, 0)
 
     def render(self) -> None:
@@ -75,6 +73,11 @@ class Game:
         pygame.display.flip()
 
     def update(self) -> None:
+        self.spawn_destroits()
         self.players.update()
         self.destroits.update()
         self.bullets.update()
+
+    def spawn_destroits(self) -> None:
+        if random() < Asteroid.SPAWN_CHANCE:
+            self.destroits.add(Asteroid())
