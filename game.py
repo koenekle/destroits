@@ -2,7 +2,7 @@
 # -*- coding: <utf-8> -*-
 import sys
 
-from pygame.locals import QUIT, KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, KEYUP
+from pygame.locals import QUIT, KEYDOWN, KEYUP, MOUSEMOTION
 
 from entities import *
 
@@ -11,7 +11,7 @@ class Game:
     def __init__(self) -> None:
         pygame.init()
         self.screen = self.__init_screen()
-        self.player = Player(250, 250)
+        self.player = Player((250.0, 250.0))
         self.players = pygame.sprite.RenderPlain(self.player)
         self.destroits = pygame.sprite.Group()
         self.bullets = pygame.sprite.Group()
@@ -46,24 +46,11 @@ class Game:
         for event in pygame.event.get():
             if event.type == QUIT:
                 sys.exit(0)
-            elif event.type == KEYDOWN:
-                if event.key == K_UP:
-                    self.player.set_acceleration(0, -0.5)
-                elif event.key == K_DOWN:
-                    self.player.set_acceleration(0, 0.5)
-                elif event.key == K_LEFT:
-                    self.player.set_acceleration(-0.5, 0)
-                elif event.key == K_RIGHT:
-                    self.player.set_acceleration(0.5, 0)
-            elif event.type == KEYUP:
-                if event.key == K_UP:
-                    self.player.set_acceleration(0, 0.5)
-                elif event.key == K_DOWN:
-                    self.player.set_acceleration(0, -0.5)
-                elif event.key == K_LEFT:
-                    self.player.set_acceleration(0.5, 0)
-                elif event.key == K_RIGHT:
-                    self.player.set_acceleration(-0.5, 0)
+            elif event.type == KEYUP or event.type == KEYDOWN:
+                if event.key in self.player.KEY_MAPPING:
+                    self.player.move_direction(event.type, event.key)
+            elif event.type == MOUSEMOTION:
+                self.player.mouse_position = np.array(event.pos)
 
     def render(self) -> None:
         self.screen.blit(self.background, (0, 0))
@@ -73,10 +60,20 @@ class Game:
         pygame.display.flip()
 
     def update(self) -> None:
-        self.spawn_destroits()
         self.players.update()
         self.destroits.update()
         self.bullets.update()
+
+        collisions = pygame.sprite.groupcollide(self.bullets, self.destroits, True, False)
+
+        self.spawn_destroits()
+
+        if self.player.can_shoot():
+            rel_pos = (self.player.mouse_position - self.player.pos).astype(np.float64)
+            direction = (rel_pos / np.linalg.norm(rel_pos)).astype(np.float64)
+            bullet = Bullet(self.player.pos, direction)
+            self.bullets.add(bullet)
+
 
     def spawn_destroits(self) -> None:
         if random() < Asteroid.SPAWN_CHANCE:
