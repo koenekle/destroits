@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: <utf-8> -*-
+import itertools
 import sys
 
-from pygame.locals import QUIT, KEYDOWN, KEYUP, MOUSEMOTION
+from pygame.locals import MOUSEMOTION
 
 from entities import *
 
@@ -11,7 +12,7 @@ class Game:
     def __init__(self) -> None:
         pygame.init()
         self.screen = self.__init_screen()
-        self.player = Player((250.0, 250.0))
+        self.player = Player(np.array((250.0, 250.0)))
         self.players = pygame.sprite.RenderPlain(self.player)
         self.destroits = pygame.sprite.Group()
         self.bullets = pygame.sprite.Group()
@@ -36,7 +37,7 @@ class Game:
     def start(self) -> None:
         # Event loop
         while True:
-            self.clock.tick(60)
+            self.clock.tick(FPS)
             self.process_input()
             self.update()
             self.render()
@@ -57,6 +58,11 @@ class Game:
         self.players.draw(self.screen)
         self.destroits.draw(self.screen)
         self.bullets.draw(self.screen)
+
+        if DEBUG:
+            for sprite in itertools.chain(self.players.sprites(), self.destroits.sprites(), self.bullets.sprites()):
+                textsurface = DBG_FONT.render(np.array2string(sprite.pos, precision=0), False, WHITE)
+                self.screen.blit(textsurface, (sprite.pos))
         pygame.display.flip()
 
     def update(self) -> None:
@@ -64,7 +70,7 @@ class Game:
         self.destroits.update()
         self.bullets.update()
 
-        collisions = pygame.sprite.groupcollide(self.bullets, self.destroits, True, False)
+        collisions = pygame.sprite.groupcollide(self.bullets, self.destroits, True, True)
 
         self.spawn_destroits()
 
@@ -73,7 +79,6 @@ class Game:
             direction = (rel_pos / np.linalg.norm(rel_pos)).astype(np.float64)
             bullet = Bullet(self.player.pos, direction)
             self.bullets.add(bullet)
-
 
     def spawn_destroits(self) -> None:
         if random() < Asteroid.SPAWN_CHANCE:
