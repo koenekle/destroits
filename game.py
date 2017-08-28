@@ -3,7 +3,7 @@
 import itertools
 import sys
 
-from pygame.locals import MOUSEMOTION
+from pygame.locals import MOUSEMOTION, KEYDOWN, QUIT
 
 from entities import *
 
