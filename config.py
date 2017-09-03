@@ -11,6 +11,7 @@ Vector2D = np.ndarray(dtype=np.float64, shape=(2, 1))
 DEBUG = False
 pygame.font.init()
 DBG_FONT = pygame.font.SysFont(None, 14)
+IMAGE_PATH = "./resource/img"
 
 FPS = 60
 

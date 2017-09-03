@@ -13,6 +13,7 @@ class Game:
     def __init__(self) -> None:
         pygame.init()
         self.screen = self.__init_screen()
+        resourceloader.init_resource_loader()
         self.player = Player(np.array((250.0, 250.0)))
         self.players = pygame.sprite.RenderPlain(self.player)
         self.destroits = pygame.sprite.Group()
