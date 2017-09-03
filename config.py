@@ -2,8 +2,11 @@ from collections import namedtuple
 
 import pygame
 from pygame.constants import K_w, K_s, K_d, K_a
+import numpy as np
 
 Point = namedtuple("Point", ("x", "y"))
+Vector2D = np.ndarray(dtype=np.float64, shape=(2, 1))
+
 
 DEBUG = False
 pygame.font.init()
@@ -27,4 +30,6 @@ KEY_MAPPING = {
         K_d: (ACCELERATION_DELTA, 0),
         K_a: (-ACCELERATION_DELTA, 0)}
 RELOAD_TIME = 20
+
+DESTROIT_SPAWN_CHANCE = 0.01
 

@@ -4,6 +4,7 @@ import itertools
 import sys
 
 from pygame.locals import MOUSEMOTION, KEYDOWN, QUIT
+from pygame import Surface
 
 from entities import *
 
@@ -18,7 +19,7 @@ class Game:
         self.bullets = pygame.sprite.Group()
         self.clock = pygame.time.Clock()
 
-    def __init_screen(self) -> pygame.Surface:
+    def __init_screen(self) -> Surface:
         screen = pygame.display.set_mode(GAMESIZE)
         pygame.display.set_caption("DESTROITS")
 
@@ -75,11 +76,11 @@ class Game:
         self.spawn_destroits()
 
         if self.player.can_shoot():
-            rel_pos = (self.player.mouse_position - self.player.pos).astype(np.float64)
-            direction = (rel_pos / np.linalg.norm(rel_pos)).astype(np.float64)
+            rel_pos = (self.player.mouse_position - self.player.pos)
+            direction = (rel_pos / np.linalg.norm(rel_pos))
             bullet = Bullet(self.player.pos, direction)
             self.bullets.add(bullet)
 
     def spawn_destroits(self) -> None:
         if random() < Asteroid.SPAWN_CHANCE:
-            self.destroits.add(Asteroid())
+            self.destroits.add(Asteroid(self.player.pos))
