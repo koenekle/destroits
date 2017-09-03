@@ -20,6 +20,10 @@ def get_image(name: str) -> pygame.Surface:
     if name in images_dict:
         return images_dict[name]
     images_dict[name] = load_png(join(IMAGE_PATH, name))
+    return images_dict[name]
+
+def get_image_scaled(name:str, size: tuple):
+    return pygame.transform.scale(get_image(name), size)
 
 
 

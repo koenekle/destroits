@@ -70,7 +70,7 @@ class Player(Entity):
     KEY_MAPPING = KEY_MAPPING
 
     def __init__(self, pos: Vector2D) -> None:
-        image = resourceloader.get_image("player")
+        image = resourceloader.get_image_scaled("spaceship", (48, 24))
         super().__init__(pos, image=image)
         self.mouse_position = np.array((0, 0))
         self.reload_counter = 0
