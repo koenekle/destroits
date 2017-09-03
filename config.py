@@ -2,10 +2,8 @@ from collections import namedtuple
 
 import pygame
 from pygame.constants import K_w, K_s, K_d, K_a
-import numpy as np
 
 Point = namedtuple("Point", ("x", "y"))
-Vector2D = np.ndarray(dtype=np.float64, shape=(2, 1))
 
 
 DEBUG = False

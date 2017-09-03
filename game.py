@@ -3,8 +3,8 @@
 import itertools
 import sys
 
-from pygame.locals import MOUSEMOTION, KEYDOWN, QUIT
 from pygame import Surface
+from pygame.locals import MOUSEMOTION, KEYDOWN, QUIT
 
 from entities import *
 
@@ -84,4 +84,4 @@ class Game:
 
     def spawn_destroits(self) -> None:
         if random() < Asteroid.SPAWN_CHANCE:
-            self.destroits.add(Asteroid(self.player.pos))
+            self.destroits.add(Asteroid(player_pos=self.player.pos))
