@@ -5,6 +5,7 @@ from typing import Tuple
 
 from pygame.locals import KEYUP
 
+import resourceloader
 from config import *
 
 
@@ -69,7 +70,7 @@ class Player(Entity):
     KEY_MAPPING = KEY_MAPPING
 
     def __init__(self, pos: Vector2D) -> None:
-        image = pygame.image.load("resource/img/player.png")
+        image = resourceloader.get_image("player")
         super().__init__(pos, image=image)
         self.mouse_position = np.array((0, 0))
         self.reload_counter = 0
