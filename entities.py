@@ -1,9 +1,10 @@
 import math
 from random import random
-from typing import Tuple
+from typing import Tuple, List
 
 import numpy as np
 from pygame.locals import KEYUP
+from pygame.surface import Surface
 
 import resourceloader
 import util
@@ -56,13 +57,13 @@ class Entity(pygame.sprite.Sprite):
             normed_speed = speed / np.linalg.norm(speed)
             speed = normed_speed * self.MAX_SPEED
         self.__speed = speed
-        self.rotate_img()
 
     def move(self) -> None:
         if not np.all(self.acceleration == np.zeros((2, 1))):
             self.speed += self.acceleration
         self.pos = np.add(self.pos, self.speed)
         self.check_for_walkout()
+        self.rotate_img()
 
     def rotate_img(self):
         x, y = self.speed / np.linalg.norm(self.pos)
@@ -82,12 +83,23 @@ class Player(Entity):
     KEY_MAPPING = KEY_MAPPING
 
     def __init__(self, pos: Vector2D) -> None:
-        image = resourceloader.get_image_scaled("spaceship", (48, 24))
+        self.image_still = resourceloader.get_image_scaled("spaceship", (48, 24))
+        self.animation = Animation(10,
+            resourceloader.get_image_scaled("spaceship_move_0", (48, 24)),
+                                   resourceloader.get_image_scaled("spaceship_move_1", (48, 24)))
+        image = self.image_still
         super().__init__(pos, image=image)
         self.mouse_position = np.array((0, 0))
         self.reload_counter = 0
 
     def update(self) -> None:
+        if np.all(self.acceleration == np.zeros((2, 1))):
+            self.animation.reset()
+            self.image = self.image_still
+            self.orig_image = self.image.copy()
+        else:
+            self.image = self.animation.update()
+            self.orig_image = self.image.copy()
         self.move()
 
     def move_direction(self, type: int, key: int) -> None:
@@ -174,3 +186,27 @@ class Bullet(Entity):
         for axis in (0, 1):
             if 0 > self.pos[axis] or self.pos[axis] > GAMESIZE[axis]:
                 self.kill()
+
+
+class Animation:
+    def __init__(self, frame_length : int, *images: List[Surface]):
+        self.images = images
+        self.index = 0
+        self.frame_length = frame_length
+        self.frame_time = 0
+
+    def reset(self) -> None:
+        self.index = 0
+
+    def update(self) -> Surface:
+        if self.frame_time == round(self.frame_length / len(self.images)):
+            self.frame_time = 0
+            self.index += 1
+        else:
+            self.frame_time += 1
+        if self.index >= len(self.images):
+            self.index = 0
+        return self.images[self.index]
+
+    def get_image(self, index: int) -> Surface:
+        return self.images[index]
