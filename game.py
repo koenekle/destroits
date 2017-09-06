@@ -19,6 +19,10 @@ class Game:
         self.destroits = pygame.sprite.Group()
         self.bullets = pygame.sprite.Group()
         self.clock = pygame.time.Clock()
+        self.key_mapping = {
+            pygame.K_w: self.player.accelerate,
+            pygame.K_d: self.player.rotate_right,
+            pygame.K_a: self.player.rotate_left}
 
     def __init_screen(self) -> Surface:
         screen = pygame.display.set_mode(GAMESIZE)
@@ -49,11 +53,12 @@ class Game:
         for event in pygame.event.get():
             if event.type == QUIT:
                 sys.exit(0)
-            elif event.type == KEYUP or event.type == KEYDOWN:
-                if event.key in self.player.KEY_MAPPING:
-                    self.player.move_direction(event.type, event.key)
             elif event.type == MOUSEMOTION:
                 self.player.mouse_position = np.array(event.pos)
+        pressed_keys = pygame.key.get_pressed()
+        for key in self.key_mapping.keys():
+            if pressed_keys[key]:
+                self.key_mapping[key]()
 
     def render(self) -> None:
         self.screen.blit(self.background, (0, 0))

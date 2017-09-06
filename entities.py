@@ -59,8 +59,6 @@ class Entity(pygame.sprite.Sprite):
         self.__speed = speed
 
     def move(self) -> None:
-        if not np.all(self.acceleration == np.zeros((2, 1))):
-            self.speed += self.acceleration
         self.pos = np.add(self.pos, self.speed)
         self.check_for_walkout()
         self.rotate_img()
@@ -91,9 +89,15 @@ class Player(Entity):
         super().__init__(pos, image=image)
         self.mouse_position = np.array((0, 0))
         self.reload_counter = 0
+        self.rotation = 0
+        self.accelerating = False
+
+    def rotate_img(self):
+        self.image = pygame.transform.rotate(self.orig_image, self.rotation)
+
 
     def update(self) -> None:
-        if np.all(self.acceleration == np.zeros((2, 1))):
+        if not self.accelerating:
             self.animation.reset()
             self.image = self.image_still
             self.orig_image = self.image.copy()
@@ -101,6 +105,7 @@ class Player(Entity):
             self.image = self.animation.update()
             self.orig_image = self.image.copy()
         self.move()
+        self.accelerating = False
 
     def move_direction(self, type: int, key: int) -> None:
         if type == KEYUP:
@@ -116,6 +121,20 @@ class Player(Entity):
         else:
             self.reload_counter += -1
             return False
+
+    def accelerate(self):
+        x = math.cos(math.radians(self.rotation))
+        y = -math.sin(math.radians(self.rotation))
+        self.speed += np.array((x, y))
+        self.accelerating = True
+
+    def rotate_left(self):
+        self.rotation += 5
+        self.rotation = self.rotation % math.copysign(360, self.rotation)
+
+    def rotate_right(self):
+        self.rotation -= 5
+        self.rotation = self.rotation % math.copysign(360, self.rotation)
 
 
 class Asteroid(Entity):
