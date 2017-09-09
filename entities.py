@@ -3,7 +3,6 @@ from random import random
 from typing import Tuple
 
 import numpy as np
-from pygame.locals import KEYUP
 
 import resourceloader
 import util
@@ -74,7 +73,7 @@ class Entity(pygame.sprite.Sprite):
                 self.pos[axis] = self.pos[axis] % GAMESIZE[axis]
 
     def update(self) -> None:
-        raise NotImplementedError("abstract Method")
+        self.move()
 
 
 class Player(Entity):
@@ -86,16 +85,55 @@ class Player(Entity):
         super().__init__(pos, image=image)
         self.mouse_position = np.array((0, 0))
         self.reload_counter = 0
+        self.dir_degrees = 0
+        self.thrust = np.array((0.0, 0.0))
 
-    def update(self) -> None:
-        self.move()
+    def rotate_img(self):
+        self.image = pygame.transform.rotate(self.orig_image, -self.dir_degrees)
 
-    def move_direction(self, type: int, key: int) -> None:
-        if type == KEYUP:
-            delta = np.negative(Player.KEY_MAPPING[key])
+    @property
+    def speed(self) -> Vector2D:
+        return util.rotate(self.thrust, self.dir_degrees)
+
+    @speed.setter
+    def speed(self, speed: Vector2D) -> None:
+        self.dir_degrees = util.angle(np.array((1.0, 0.0)), speed)
+        self.thrust = np.array((1.0, 0.0)) * np.linalg.norm(speed)
+        self.rotate_img()
+
+    @property
+    def thrust(self) -> Vector2D:
+        return self.__thrust
+
+    @thrust.setter
+    def thrust(self, thrust):
+        if np.linalg.norm(thrust) > self.MAX_SPEED:
+            self.__thrust = util.cut_to_length(thrust, self.MAX_SPEED)
         else:
-            delta = Player.KEY_MAPPING[key]
-        self.acceleration = self.acceleration + np.array(delta)
+            self.__thrust = thrust
+
+    @property
+    def direction(self) -> Vector2D:
+        return util.rotate(np.array((1.0, 0.0)), self.dir_degrees)
+
+    @direction.setter
+    def direction(self, dir: Vector2D) -> None:
+        x, y = dir[0], dir[1]
+        self.dir_degrees = math.atan2(-y, x) * 180 / math.pi
+
+    def turn_left(self) -> None:
+        self.dir_degrees -= TURN_SPEED
+        self.rotate_img()
+
+    def turn_right(self) -> None:
+        self.dir_degrees += TURN_SPEED
+        self.rotate_img()
+
+    def accelerate(self) -> None:
+        self.thrust = self.thrust + ACCELERATION_DELTA
+
+    def brake(self) -> None:
+        self.thrust = self.thrust - ACCELERATION_DELTA
 
     def can_shoot(self) -> bool:
         if self.reload_counter == 0:
@@ -131,9 +169,6 @@ class Asteroid(Entity):
         else:
             Exception("Need to provide either player_pos or move_direction")
 
-    def update(self) -> None:
-        self.move()
-
     def set_acceleration(self, dX: float, dY: float) -> None:
         self.acceleration = self.acceleration + np.array((dX, dY))
 
@@ -166,9 +201,6 @@ class Bullet(Entity):
         image = resourceloader.get_image("bullet")
         super().__init__(pos, size=Bullet.SIZE, image=image)
         self.speed = Bullet.MAX_SPEED * np.array(direction)
-
-    def update(self) -> None:
-        self.move()
 
     def check_for_walkout(self) -> None:
         for axis in (0, 1):

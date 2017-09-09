@@ -22,12 +22,15 @@ WHITE = (255, 255, 255)
 
 GAMESIZE = Point(1000, 1000)
 
-ACCELERATION_DELTA = 0.5
+ACCELERATION_DELTA = (0.5, 0.0)
+TURN_SPEED = 4
+CAN_SHOOT_ANYWHERE = False
+
 KEY_MAPPING = {
-        K_w: (0, -ACCELERATION_DELTA),
-        K_s: (0, ACCELERATION_DELTA),
-        K_d: (ACCELERATION_DELTA, 0),
-        K_a: (-ACCELERATION_DELTA, 0)}
+    K_w: "accelerate",
+    K_s: "brake",
+    K_d: "turn_right",
+    K_a: "turn_left"}
 RELOAD_TIME = 20
 
 DESTROIT_SPAWN_CHANCE = 0.01

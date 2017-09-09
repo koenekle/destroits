@@ -19,6 +19,7 @@ class Game:
         self.destroits = pygame.sprite.Group()
         self.bullets = pygame.sprite.Group()
         self.clock = pygame.time.Clock()
+        self.__pressed_keys = set()
 
     def __init_screen(self) -> Surface:
         screen = pygame.display.set_mode(GAMESIZE)
@@ -50,8 +51,12 @@ class Game:
             if event.type == QUIT:
                 sys.exit(0)
             elif event.type == KEYUP or event.type == KEYDOWN:
-                if event.key in self.player.KEY_MAPPING:
-                    self.player.move_direction(event.type, event.key)
+                if event.type == KEYDOWN:
+                    self.__pressed_keys.add(event.key)
+                else:
+                    self.__pressed_keys.remove(event.key)
+
+
             elif event.type == MOUSEMOTION:
                 self.player.mouse_position = np.array(event.pos)
 
@@ -72,13 +77,20 @@ class Game:
         self.destroits.update()
         self.bullets.update()
 
+        for key in self.__pressed_keys:
+            if key in self.player.KEY_MAPPING.keys():
+                getattr(self.player, self.player.KEY_MAPPING[key])()
+
         collisions = pygame.sprite.groupcollide(self.bullets, self.destroits, True, True)
 
         self.spawn_destroits()
 
         if self.player.can_shoot():
-            rel_pos = (self.player.mouse_position - self.player.pos)
-            direction = (rel_pos / np.linalg.norm(rel_pos))
+            if CAN_SHOOT_ANYWHERE:
+                rel_pos = (self.player.mouse_position - self.player.pos)
+                direction = (rel_pos / np.linalg.norm(rel_pos))
+            else:
+                direction = self.player.direction
             bullet = Bullet(self.player.pos, direction)
             self.bullets.add(bullet)
 
