@@ -56,13 +56,14 @@ class Entity(pygame.sprite.Sprite):
             normed_speed = speed / np.linalg.norm(speed)
             speed = normed_speed * self.MAX_SPEED
         self.__speed = speed
-        self.rotate_img()
 
     def move(self) -> None:
         if not np.all(self.acceleration == np.zeros((2, 1))):
             self.speed += self.acceleration
         self.pos = np.add(self.pos, self.speed)
         self.check_for_walkout()
+        self.rotate_img()
+
 
     def rotate_img(self):
         x, y = self.speed / np.linalg.norm(self.pos)
@@ -91,6 +92,7 @@ class Player(Entity):
         super().__init__(pos, image=image)
         self.mouse_position = np.array((0, 0))
         self.reload_counter = 0
+        self.accelerating = False
 
     def update(self) -> None:
         if not self.accelerating:
@@ -125,6 +127,7 @@ class Player(Entity):
 
     def accelerate(self) -> None:
         self.speed += util.rotate(ACCELERATION_DELTA, self.rotation)
+        self.accelerating = True
 
     def can_shoot(self) -> bool:
         if self.reload_counter == 0:
@@ -200,7 +203,7 @@ class Bullet(Entity):
 
 
 class Animation:
-    def __init__(self, frame_length : int, *images: List[Surface]):
+    def __init__(self, frame_length: int, *images: List[Surface]):
         self.images = images
         self.index = 0
         self.frame_length = frame_length
