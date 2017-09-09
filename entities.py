@@ -56,13 +56,13 @@ class Entity(pygame.sprite.Sprite):
             normed_speed = speed / np.linalg.norm(speed)
             speed = normed_speed * self.MAX_SPEED
         self.__speed = speed
+        self.rotate_img()
 
     def move(self) -> None:
         if not np.all(self.acceleration == np.zeros((2, 1))):
             self.speed += self.acceleration
         self.pos = np.add(self.pos, self.speed)
         self.check_for_walkout()
-        self.rotate_img()
 
 
     def rotate_img(self):
@@ -102,6 +102,7 @@ class Player(Entity):
         else:
             self.image = self.animation.update()
             self.orig_image = self.image.copy()
+        self.rotate_img()
         self.move()
         self.accelerating = False
 
