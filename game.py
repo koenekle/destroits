@@ -4,7 +4,7 @@ import itertools
 import sys
 
 from pygame import Surface
-from pygame.locals import MOUSEMOTION, KEYDOWN, QUIT
+from pygame.locals import MOUSEMOTION, KEYDOWN, KEYUP, QUIT
 
 from entities import *
 

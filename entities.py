@@ -81,59 +81,35 @@ class Player(Entity):
     KEY_MAPPING = KEY_MAPPING
 
     def __init__(self, pos: Vector2D) -> None:
+        self.rotation = 0
         image = resourceloader.get_image_scaled("spaceship", (48, 24))
         super().__init__(pos, image=image)
         self.mouse_position = np.array((0, 0))
         self.reload_counter = 0
-        self.dir_degrees = 0
-        self.thrust = np.array((0.0, 0.0))
+
 
     def rotate_img(self):
-        self.image = pygame.transform.rotate(self.orig_image, -self.dir_degrees)
-
-    @property
-    def speed(self) -> Vector2D:
-        return util.rotate(self.thrust, self.dir_degrees)
-
-    @speed.setter
-    def speed(self, speed: Vector2D) -> None:
-        self.dir_degrees = util.angle(np.array((1.0, 0.0)), speed)
-        self.thrust = np.array((1.0, 0.0)) * np.linalg.norm(speed)
-        self.rotate_img()
-
-    @property
-    def thrust(self) -> Vector2D:
-        return self.__thrust
-
-    @thrust.setter
-    def thrust(self, thrust):
-        if np.linalg.norm(thrust) > self.MAX_SPEED:
-            self.__thrust = util.cut_to_length(thrust, self.MAX_SPEED)
-        else:
-            self.__thrust = thrust
+        self.image = pygame.transform.rotate(self.orig_image, -self.rotation)
 
     @property
     def direction(self) -> Vector2D:
-        return util.rotate(np.array((1.0, 0.0)), self.dir_degrees)
+        return util.rotate(np.array((1.0, 0.0)), self.rotation)
 
     @direction.setter
     def direction(self, dir: Vector2D) -> None:
         x, y = dir[0], dir[1]
-        self.dir_degrees = math.atan2(-y, x) * 180 / math.pi
+        self.rotation = math.atan2(-y, x) * 180 / math.pi
 
     def turn_left(self) -> None:
-        self.dir_degrees -= TURN_SPEED
+        self.rotation -= TURN_SPEED
         self.rotate_img()
 
     def turn_right(self) -> None:
-        self.dir_degrees += TURN_SPEED
+        self.rotation += TURN_SPEED
         self.rotate_img()
 
     def accelerate(self) -> None:
-        self.thrust = self.thrust + ACCELERATION_DELTA
-
-    def brake(self) -> None:
-        self.thrust = self.thrust - ACCELERATION_DELTA
+        self.speed += util.rotate(ACCELERATION_DELTA, self.rotation)
 
     def can_shoot(self) -> bool:
         if self.reload_counter == 0:

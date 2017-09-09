@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 import pygame
-from pygame.constants import K_w, K_s, K_d, K_a
+from pygame.constants import K_w, K_d, K_a
 
 Point = namedtuple("Point", ("x", "y"))
 
@@ -28,7 +28,6 @@ CAN_SHOOT_ANYWHERE = False
 
 KEY_MAPPING = {
     K_w: "accelerate",
-    K_s: "brake",
     K_d: "turn_right",
     K_a: "turn_left"}
 RELOAD_TIME = 20
