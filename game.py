@@ -20,6 +20,7 @@ class Game:
         self.bullets = pygame.sprite.Group()
         self.clock = pygame.time.Clock()
         self.__pressed_keys = set()
+        self.player_score = 0
 
     def __init_screen(self) -> Surface:
         screen = pygame.display.set_mode(GAMESIZE)
@@ -65,10 +66,11 @@ class Game:
         self.players.draw(self.screen)
         self.destroits.draw(self.screen)
         self.bullets.draw(self.screen)
+        self.blit_playerscore()
 
         if DEBUG:
             for sprite in itertools.chain(self.players.sprites(), self.destroits.sprites(), self.bullets.sprites()):
-                textsurface = DBG_FONT.render(np.array2string(sprite.pos, precision=0), False, WHITE)
+                textsurface = DBG_FONT.render(np.array2string(sprite.pos, precision=1), False, WHITE)
                 self.screen.blit(textsurface, (sprite.pos))
         pygame.display.flip()
 
@@ -82,7 +84,12 @@ class Game:
                 getattr(self.player, self.player.KEY_MAPPING[key])()
 
         collisions = pygame.sprite.groupcollide(self.bullets, self.destroits, True, True)
-
+        for asteroids in collisions.values():
+            for asteroid in asteroids:
+                self.player_score += asteroid.points
+        lost = pygame.sprite.groupcollide(self.destroits, self.players, False, True)
+        if lost:
+            self.handle_loose()
         self.spawn_destroits()
 
         if self.player.can_shoot():
@@ -97,3 +104,10 @@ class Game:
     def spawn_destroits(self) -> None:
         if random() < Asteroid.SPAWN_CHANCE:
             self.destroits.add(Asteroid(player_pos=self.player.pos))
+
+    def blit_playerscore(self):
+        textsurface = GAME_FONT.render("SCORE: {}".format(self.player_score), False, WHITE)
+        self.screen.blit(textsurface, (0, 0))
+
+    def handle_loose(self):
+        pass

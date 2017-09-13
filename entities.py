@@ -131,6 +131,8 @@ class Player(Entity):
         self.accelerating = True
 
     def can_shoot(self) -> bool:
+        if not self.alive():
+            return False
         if self.reload_counter == 0:
             self.reload_counter = RELOAD_TIME
             return True
@@ -140,10 +142,10 @@ class Player(Entity):
 
 
 class Asteroid(Entity):
-    MAX_SPEED = 5.0
+    MAX_SPEED = 4.0
     MIN_SIZE = 20
     MAX_SIZE = 50
-    MIN_DISTANCE_PLAYER = 16
+    MIN_DISTANCE_PLAYER = 40
 
     SPAWN_CHANCE = DESTROIT_SPAWN_CHANCE
 
@@ -164,8 +166,9 @@ class Asteroid(Entity):
         else:
             Exception("Need to provide either player_pos or move_direction")
 
-    def set_acceleration(self, dX: float, dY: float) -> None:
-        self.acceleration = self.acceleration + np.array((dX, dY))
+    @property
+    def points(self):
+        return round(self.__size * (self.MAX_SIZE* 2 - DESTROIT_POINT_SCALE_FACTOR))
 
     def calc_spawn_pos(self, player_pos: Vector2D) -> Vector2D:
         distance_player = self.MIN_DISTANCE_PLAYER - 1
