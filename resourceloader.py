@@ -16,13 +16,13 @@ def init_resource_loader():
         images_dict[os.path.splitext(filename)[0]] = load_png(join(IMAGE_PATH, filename))
 
 
-def get_image(name: str) -> pygame.Surface:
+def get_image(name):
     if name in images_dict:
         return images_dict[name]
     images_dict[name] = load_png(join(IMAGE_PATH, name))
     return images_dict[name]
 
-def get_image_scaled(name:str, size: tuple):
+def get_image_scaled(name, size):
     return pygame.transform.scale(get_image(name), size)
 
 

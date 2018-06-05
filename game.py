@@ -10,7 +10,7 @@ from entities import *
 
 
 class Game:
-    def __init__(self) -> None:
+    def __init__(self):
         pygame.init()
         self.screen = self.__init_screen()
         resourceloader.init_resource_loader()
@@ -22,7 +22,7 @@ class Game:
         self.__pressed_keys = set()
         self.player_score = 0
 
-    def __init_screen(self) -> Surface:
+    def __init_screen(self):
         screen = pygame.display.set_mode(GAMESIZE)
         pygame.display.set_caption("DESTROITS")
 
@@ -38,7 +38,7 @@ class Game:
 
         return screen
 
-    def start(self) -> None:
+    def start(self):
         # Event loop
         while True:
             self.clock.tick(FPS)
@@ -46,7 +46,7 @@ class Game:
             self.update()
             self.render()
 
-    def process_input(self) -> None:
+    def process_input(self):
         pygame.event.pump()
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -61,7 +61,7 @@ class Game:
             elif event.type == MOUSEMOTION:
                 self.player.mouse_position = np.array(event.pos)
 
-    def render(self) -> None:
+    def render(self):
         self.screen.blit(self.background, (0, 0))
         self.players.draw(self.screen)
         self.destroits.draw(self.screen)
@@ -74,7 +74,7 @@ class Game:
                 self.screen.blit(textsurface, (sprite.pos))
         pygame.display.flip()
 
-    def update(self) -> None:
+    def update(self):
         self.players.update()
         self.destroits.update()
         self.bullets.update()
@@ -101,7 +101,7 @@ class Game:
             bullet = Bullet(self.player.pos, direction)
             self.bullets.add(bullet)
 
-    def spawn_destroits(self) -> None:
+    def spawn_destroits(self):
         if random() < Asteroid.SPAWN_CHANCE:
             self.destroits.add(Asteroid(player_pos=self.player.pos))
 

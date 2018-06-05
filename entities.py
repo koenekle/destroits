@@ -19,7 +19,7 @@ class Entity(pygame.sprite.Sprite):
     """
     MAX_SPEED = 5.0
 
-    def __init__(self, pos: Vector2D, size=(10, 10), color=GREY, image=None) -> None:
+    def __init__(self, pos, size=(10, 10), color=GREY, image=None):
         super().__init__()
         if size is not None:
             if not image:
@@ -35,22 +35,22 @@ class Entity(pygame.sprite.Sprite):
         self.speed: Tuple[float, float] = np.array((0.0, 0.0))
 
     @property
-    def pos(self) -> Vector2D:
+    def pos(self):
         return self.real_pos
 
     @pos.setter
-    def pos(self, pos: Vector2D) -> None:
+    def pos(self, pos):
         self.real_pos = pos
         x, y = pos
         self.rect.x = round(x)
         self.rect.y = round(y)
 
     @property
-    def speed(self) -> Vector2D:
+    def speed(self):
         return self.__speed
 
     @speed.setter
-    def speed(self, speed: Vector2D) -> None:
+    def speed(self, speed):
         # Max speed check
         if np.linalg.norm(speed) > self.MAX_SPEED:
             normed_speed = speed / np.linalg.norm(speed)
@@ -58,23 +58,22 @@ class Entity(pygame.sprite.Sprite):
         self.__speed = speed
         self.rotate_img()
 
-    def move(self) -> None:
+    def move(self):
         if not np.all(self.acceleration == np.zeros((2, 1))):
             self.speed += self.acceleration
         self.pos = np.add(self.pos, self.speed)
         self.check_for_walkout()
 
-
     def rotate_img(self):
         x, y = self.speed / np.linalg.norm(self.pos)
         self.image = pygame.transform.rotate(self.orig_image, math.atan2(-y, x) * 180 / math.pi)
 
-    def check_for_walkout(self) -> None:
+    def check_for_walkout(self):
         for axis in (0, 1):
             if 0 > self.pos[axis] or self.pos[axis] > GAMESIZE[axis]:
                 self.pos[axis] = self.pos[axis] % GAMESIZE[axis]
 
-    def update(self) -> None:
+    def update(self):
         self.move()
 
 
@@ -82,11 +81,11 @@ class Player(Entity):
     MAX_SPEED = 5.0
     KEY_MAPPING = KEY_MAPPING
 
-    def __init__(self, pos: Vector2D) -> None:
+    def __init__(self, pos):
         self.image_still = resourceloader.get_image_scaled("spaceship", (48, 24))
         self.animation = Animation(10,
-            resourceloader.get_image_scaled("spaceship_move_0", (48, 24)),
-                                   resourceloader.get_image_scaled("spaceship_move_1", (48, 24)))
+                                   (resourceloader.get_image_scaled("spaceship_move_0", (48, 24)),
+                                   resourceloader.get_image_scaled("spaceship_move_1", (48, 24))))
         image = self.image_still
         self.rotation = 0
         super().__init__(pos, image=image)
@@ -94,7 +93,7 @@ class Player(Entity):
         self.reload_counter = 0
         self.accelerating = False
 
-    def update(self) -> None:
+    def update(self):
         if not self.accelerating:
             self.animation.reset()
             self.image = self.image_still
@@ -110,27 +109,27 @@ class Player(Entity):
         self.image = pygame.transform.rotate(self.orig_image, -self.rotation)
 
     @property
-    def direction(self) -> Vector2D:
+    def direction(self):
         return util.rotate(np.array((1.0, 0.0)), self.rotation)
 
     @direction.setter
-    def direction(self, dir: Vector2D) -> None:
+    def direction(self, dir):
         x, y = dir[0], dir[1]
         self.rotation = math.atan2(-y, x) * 180 / math.pi
 
-    def turn_left(self) -> None:
+    def turn_left(self):
         self.rotation -= TURN_SPEED
         self.rotate_img()
 
-    def turn_right(self) -> None:
+    def turn_right(self):
         self.rotation += TURN_SPEED
         self.rotate_img()
 
-    def accelerate(self) -> None:
+    def accelerate(self):
         self.speed += util.rotate(ACCELERATION_DELTA, self.rotation)
         self.accelerating = True
 
-    def can_shoot(self) -> bool:
+    def can_shoot(self):
         if not self.alive():
             return False
         if self.reload_counter == 0:
@@ -149,8 +148,8 @@ class Asteroid(Entity):
 
     SPAWN_CHANCE = DESTROIT_SPAWN_CHANCE
 
-    def __init__(self, player_pos: Vector2D = None, pos: Vector2D = None, move_direction: Vector2D = None,
-                 size=None) -> None:
+    def __init__(self, player_pos=None, pos=None, move_direction=None,
+                 size=None):
         if size is None:
             self.__size = round(random() * (self.MAX_SIZE - self.MIN_SIZE) + self.MIN_SIZE)
         else:
@@ -168,24 +167,26 @@ class Asteroid(Entity):
 
     @property
     def points(self):
-        return round(self.__size * (self.MAX_SIZE* 2 - DESTROIT_POINT_SCALE_FACTOR))
+        return round(self.__size * (self.MAX_SIZE * 2 - DESTROIT_POINT_SCALE_FACTOR))
 
-    def calc_spawn_pos(self, player_pos: Vector2D) -> Vector2D:
+    def calc_spawn_pos(self, player_pos):
         distance_player = self.MIN_DISTANCE_PLAYER - 1
         while self.MIN_DISTANCE_PLAYER > distance_player:
             pos = np.array((random() * GAMESIZE.x, random() * GAMESIZE.y))
             distance_player = np.linalg.norm(pos - player_pos)
         return pos
 
-    def calc_move_direction(self, player_pos: Vector2D) -> Vector2D:
+    def calc_move_direction(self, player_pos):
         rel_pos = (player_pos - self.pos)
         return rel_pos / np.linalg.norm(rel_pos) * self.MAX_SPEED * random()
 
     def kill(self):
         new_size = self.__size / 2
         if new_size > self.MIN_SIZE:
-            a1 = Asteroid(pos=np.copy(self.pos), move_direction=util.rotate(self.speed, -10), size=new_size)
-            a2 = Asteroid(pos=np.copy(self.pos), move_direction=util.rotate(self.speed, 10), size=new_size)
+            a1 = Asteroid(pos=np.copy(self.pos), move_direction=util.rotate(self.speed, -10),
+                          size=new_size)
+            a2 = Asteroid(pos=np.copy(self.pos), move_direction=util.rotate(self.speed, 10),
+                          size=new_size)
             a1.add(self.groups())
             a2.add(self.groups())
         super(Asteroid, self).kill()
@@ -195,28 +196,28 @@ class Bullet(Entity):
     MAX_SPEED = 5.0
     SIZE = (10, 2)
 
-    def __init__(self, pos: Vector2D, direction: Vector2D) -> None:
+    def __init__(self, pos, direction):
         image = resourceloader.get_image("bullet")
         super().__init__(pos, size=Bullet.SIZE, image=image)
         self.speed = Bullet.MAX_SPEED * np.array(direction)
 
-    def check_for_walkout(self) -> None:
+    def check_for_walkout(self):
         for axis in (0, 1):
             if 0 > self.pos[axis] or self.pos[axis] > GAMESIZE[axis]:
                 self.kill()
 
 
 class Animation:
-    def __init__(self, frame_length: int, *images: List[Surface]):
+    def __init__(self, frame_length, images):
         self.images = images
         self.index = 0
         self.frame_length = frame_length
         self.frame_time = 0
 
-    def reset(self) -> None:
+    def reset(self):
         self.index = 0
 
-    def update(self) -> Surface:
+    def update(self):
         if self.frame_time == round(self.frame_length / len(self.images)):
             self.frame_time = 0
             self.index += 1
@@ -226,5 +227,5 @@ class Animation:
             self.index = 0
         return self.images[self.index]
 
-    def get_image(self, index: int) -> Surface:
+    def get_image(self, index):
         return self.images[index]

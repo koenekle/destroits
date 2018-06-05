@@ -4,7 +4,7 @@
 from game import Game
 
 
-def launch() -> None:
+def launch():
     cur_game = Game()
     cur_game.start()
 
